@@ -124,14 +124,29 @@ class UGATIT(object):
         self.testB_loader = DataLoader(self.testB, batch_size=1, shuffle=False)
 
         """ Define Generator, Discriminator """
-        self.genA2B = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size,
-                                      light=self.light).to(self.device)
-        self.genB2A = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size,
-                                      light=self.light).to(self.device)
-        self.disGA = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
-        self.disGB = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
-        self.disLA = Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device)
-        self.disLB = Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device)
+        if len(self.opt.gpu_ids) > 1:
+
+            self.genA2B = torch.nn.DataParallel(ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                          img_size=self.img_size,
+                                          light=self.light).to(self.device), self.opt.gpu_ids)
+            self.genB2A = torch.nn.DataParallel(ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                          img_size=self.img_size,
+                                          light=self.light).to(self.device), self.opt.gpu_ids)
+            self.disGA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device), self.opt.gpu_ids)
+            self.disGB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device), self.opt.gpu_ids)
+            self.disLA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device), self.opt.gpu_ids)
+            self.disLB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device), self.opt.gpu_ids)
+
+        else:
+            self.genA2B = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                              img_size=self.img_size,
+                                              light=self.light).to(self.device)
+            self.genB2A = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size,
+                                          light=self.light).to(self.device)
+            self.disGA = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
+            self.disGB = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
+            self.disLA = Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device)
+            self.disLB = Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device)
 
         """ Define Loss """
         self.L1_loss = nn.L1Loss().to(self.device)
@@ -161,9 +176,9 @@ class UGATIT(object):
                 print(" [*] Load SUCCESS")
                 if self.decay_flag and start_iter > (self.iteration // 2):
                     self.G_optim.param_groups[0]['lr'] -= (self.lr / (self.iteration // 2)) * (
-                                start_iter - self.iteration // 2)
+                            start_iter - self.iteration // 2)
                     self.D_optim.param_groups[0]['lr'] -= (self.lr / (self.iteration // 2)) * (
-                                start_iter - self.iteration // 2)
+                            start_iter - self.iteration // 2)
 
         # training loop
         print('training start !')

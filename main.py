@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='YOUR_DATASET_NAME', help='dataset_name')
 
     parser.add_argument('--iteration', type=int, default=1000000, help='The number of training iterations')
-    parser.add_argument('--batch_size', type=int, default=1, help='The size of batch size')
+    parser.add_argument('--batch_size', type=int, default=8, help='The size of batch size')
     parser.add_argument('--print_freq', type=int, default=1000, help='The number of image print freq')
     parser.add_argument('--save_freq', type=int, default=100000, help='The number of model save freq')
     parser.add_argument('--decay_flag', type=str2bool, default=True, help='The decay_flag')
@@ -32,7 +32,8 @@ def parse_args():
     parser.add_argument('--img_ch', type=int, default=3, help='The size of image channel')
 
     parser.add_argument('--result_dir', type=str, default='results', help='Directory name to save the results')
-    parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')
+    parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')
+    parser.add_argument('--gpu_ids', type=str, default='0', help='eg 0,1; 0,1,2')
     parser.add_argument('--benchmark_flag', type=str2bool, default=False)
     parser.add_argument('--resume', type=str2bool, default=False)
 
