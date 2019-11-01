@@ -154,7 +154,7 @@ class Visualizer():
                 except VisdomExceptionBase:
                     self.create_visdom_connections()
 
-        if self.use_html and (save_result or not self.saved):  # save images to an HTML file if they haven't been saved.
+        if self.use_html and (save_result or not self.saved) and epoch % 1000 == 0:  # save images to an HTML file if they haven't been saved.
             self.saved = True
             # save images to the disk
             for label, image in visuals.items():
