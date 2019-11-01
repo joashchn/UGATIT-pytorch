@@ -189,6 +189,8 @@ class UGATIT(object) :
 
             fake_A2B, _, _ = self.genA2B(real_A)
             fake_B2A, _, _ = self.genB2A(real_B)
+            self.origin = real_A
+            self.transfer = fake_A2B
 
             real_GA_logit, real_GA_cam_logit, _ = self.disGA(real_A)
             real_LA_logit, real_LA_cam_logit, _ = self.disLA(real_A)
