@@ -52,13 +52,10 @@ class UGATIT(object) :
         self.resume = args.resume
 
         """visualize init"""
-        visual_names_A = ['real_A', 'fake_B', 'rec_A']
-        visual_names_B = ['real_B', 'fake_A', 'rec_B']
-        if self.isTrain and self.opt.lambda_identity > 0.0:  # if identity loss is used, we also visualize idt_B=G_A(B) ad idt_A=G_A(B)
-            visual_names_A.append('idt_B')
-            visual_names_B.append('idt_A')
+        # visual_names_A = ['real_A', 'fake_B', 'rec_A']
+        # visual_names_B = ['real_B', 'fake_A', 'rec_B']
 
-        self.visual_names = visual_names_A + visual_names_B  # combine visualizations for A and B
+        self.visual_names = ['origin', 'transfer']  # combine visualizations for A and B
 
         if torch.backends.cudnn.enabled and self.benchmark_flag:
             print('set benchmark !')

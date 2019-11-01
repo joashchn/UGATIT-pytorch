@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument('--img_ch', type=int, default=3, help='The size of image channel')
 
     parser.add_argument('--result_dir', type=str, default='results', help='Directory name to save the results')
-    parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')
+    parser.add_argument('--device', type=str, default='cpu', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')
     parser.add_argument('--benchmark_flag', type=str2bool, default=False)
     parser.add_argument('--resume', type=str2bool, default=False)
 
@@ -49,7 +49,7 @@ def parse_args():
     parser.add_argument('--display_port', type=int, default=8097, help='visdom port of the web display')
     parser.add_argument('--update_html_freq', type=int, default=1000,
                         help='frequency of saving training results to html')
-    parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
+    # parser.add_argument('--print_freq', type=int, default=100, help='frequency of showing training results on console')
     parser.add_argument('--no_html', action='store_true',
                         help='do not save intermediate training results to [opt.checkpoints_dir]/[opt.name]/web/')
 
