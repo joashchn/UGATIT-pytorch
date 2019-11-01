@@ -5,9 +5,12 @@ from torch.utils.data import DataLoader
 from networks import *
 from utils import *
 from glob import glob
+from visualizer import Visualizer
+from collections import OrderedDict
 
 class UGATIT(object) :
     def __init__(self, args):
+        self.opt = args
         self.light = args.light
 
         if self.light :
@@ -48,6 +51,15 @@ class UGATIT(object) :
         self.benchmark_flag = args.benchmark_flag
         self.resume = args.resume
 
+        """visualize init"""
+        visual_names_A = ['real_A', 'fake_B', 'rec_A']
+        visual_names_B = ['real_B', 'fake_A', 'rec_B']
+        if self.isTrain and self.opt.lambda_identity > 0.0:  # if identity loss is used, we also visualize idt_B=G_A(B) ad idt_A=G_A(B)
+            visual_names_A.append('idt_B')
+            visual_names_B.append('idt_A')
+
+        self.visual_names = visual_names_A + visual_names_B  # combine visualizations for A and B
+
         if torch.backends.cudnn.enabled and self.benchmark_flag:
             print('set benchmark !')
             torch.backends.cudnn.benchmark = True
@@ -77,6 +89,14 @@ class UGATIT(object) :
         print("# cycle_weight : ", self.cycle_weight)
         print("# identity_weight : ", self.identity_weight)
         print("# cam_weight : ", self.cam_weight)
+
+    def get_current_visuals(self):
+        """Return visualization images. train.py will display these images with visdom, and save the images to a HTML"""
+        visual_ret = OrderedDict()
+        for name in self.visual_names:
+            if isinstance(name, str):
+                visual_ret[name] = getattr(self, name)
+        return visual_ret
 
     ##################################################################################
     # Model
@@ -143,6 +163,10 @@ class UGATIT(object) :
 
         # training loop
         print('training start !')
+
+        # visualize training process...
+        visualizer = Visualizer(self.opt)  # create a visualizer that display/save images and plots
+
         start_time = time.time()
         for step in range(start_iter, self.iteration + 1):
             if self.decay_flag and step > (self.iteration // 2):
@@ -331,6 +355,9 @@ class UGATIT(object) :
                 cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.png' % step), B2A * 255.0)
                 self.genA2B.train(), self.genB2A.train(), self.disGA.train(), self.disGB.train(), self.disLA.train(), self.disLB.train()
 
+                # self.compute_visuals() # in pytorch_cyclegan,only used in colorization_model
+                visualizer.display_current_results(self.get_current_visuals(), step, True)
+
             if step % self.save_freq == 0:
                 self.save(os.path.join(self.result_dir, self.dataset, 'model'), step)
 
@@ -343,6 +370,8 @@ class UGATIT(object) :
                 params['disLA'] = self.disLA.state_dict()
                 params['disLB'] = self.disLB.state_dict()
                 torch.save(params, os.path.join(self.result_dir, self.dataset + '_params_latest.pt'))
+
+                visualizer.reset()  # reset the visualizer: make sure it saves the results to HTML at least once every epoch
 
     def save(self, dir, step):
         params = {}
