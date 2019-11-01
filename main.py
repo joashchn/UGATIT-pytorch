@@ -37,6 +37,8 @@ def parse_args():
     parser.add_argument('--resume', type=str2bool, default=False)
 
     # visdom and HTML visualization parameters
+    parser.add_argument('--isTrain', type=str2bool, default=True, help='display isTrain')
+    parser.add_argument('--display_name', type=str, default='UGATIT', help='display name')
     parser.add_argument('--display_winsize', type=int, default=256, help='display window size for both visdom and HTML')
     parser.add_argument('--display_freq', type=int, default=10, help='frequency of showing training results on screen')
     parser.add_argument('--display_ncols', type=int, default=4,

@@ -53,8 +53,8 @@ class UGATIT(object):
         self.resume = args.resume
 
         """visualize init"""
-        visual_names_A = ['real_A', 'fake_A2B', 'fakeA2B2A', 'fake_A2A']
-        visual_names_B = ['real_B', 'fake_B2A', 'fakeB2A2B', 'fake_B2B']
+        visual_names_A = ['real_A', 'fake_A2B', 'fake_A2B2A', 'fake_A2A']
+        visual_names_B = ['real_B', 'fake_B2A', 'fake_B2A2B', 'fake_B2B']
         self.visual_names = visual_names_A + visual_names_B
 
         if torch.backends.cudnn.enabled and self.benchmark_flag:

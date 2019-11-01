@@ -61,10 +61,9 @@ class Visualizer():
         """
         self.opt = opt  # cache the option
         self.display_id = opt.display_id
-        # self.use_html = opt.isTrain and not opt.no_html
-        self.use_html = True
+        self.use_html = opt.isTrain and not opt.no_html
         self.win_size = opt.display_winsize
-        self.name = 'opt.name'
+        self.name = opt.display_name
         self.port = opt.display_port
         self.saved = False
         if self.display_id > 0:  # connect to a visdom server given <display_port> and <display_server>
