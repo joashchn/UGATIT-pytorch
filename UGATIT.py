@@ -124,24 +124,27 @@ class UGATIT(object):
         self.testB_loader = DataLoader(self.testB, batch_size=1, shuffle=False)
 
         """ Define Generator, Discriminator """
-        if len(self.opt.gpu_ids) > 1:
+        if self.opt.multi_gpus:
 
-            self.genA2B = torch.nn.DataParallel(ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
-                                          img_size=self.img_size,
-                                          light=self.light).to(self.device), self.opt.gpu_ids)
-            self.genB2A = torch.nn.DataParallel(ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
-                                          img_size=self.img_size,
-                                          light=self.light).to(self.device), self.opt.gpu_ids)
-            self.disGA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device), self.opt.gpu_ids)
-            self.disGB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device), self.opt.gpu_ids)
-            self.disLA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device), self.opt.gpu_ids)
-            self.disLB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5).to(self.device), self.opt.gpu_ids)
+            self.genA2B = torch.nn.DataParallel(
+                ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                img_size=self.img_size,
+                                light=self.light)).to(self.device)
+            self.genB2A = torch.nn.DataParallel(
+                ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                img_size=self.img_size,
+                                light=self.light)).to(self.device)
+            self.disGA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7)).to(self.device)
+            self.disGB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=7)).to(self.device)
+            self.disLA = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5)).to(self.device)
+            self.disLB = torch.nn.DataParallel(Discriminator(input_nc=3, ndf=self.ch, n_layers=5)).to(self.device)
 
         else:
             self.genA2B = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
-                                              img_size=self.img_size,
-                                              light=self.light).to(self.device)
-            self.genB2A = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size,
+                                          img_size=self.img_size,
+                                          light=self.light).to(self.device)
+            self.genB2A = ResnetGenerator(input_nc=3, output_nc=3, ngf=self.ch, n_blocks=self.n_res,
+                                          img_size=self.img_size,
                                           light=self.light).to(self.device)
             self.disGA = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
             self.disGB = Discriminator(input_nc=3, ndf=self.ch, n_layers=7).to(self.device)
@@ -290,9 +293,9 @@ class UGATIT(object):
                 fake_B2B_cam_logit, torch.zeros_like(fake_B2B_cam_logit).to(self.device))
 
             G_loss_A = self.adv_weight * (
-                        G_ad_loss_GA + G_ad_cam_loss_GA + G_ad_loss_LA + G_ad_cam_loss_LA) + self.cycle_weight * G_recon_loss_A + self.identity_weight * G_identity_loss_A + self.cam_weight * G_cam_loss_A
+                    G_ad_loss_GA + G_ad_cam_loss_GA + G_ad_loss_LA + G_ad_cam_loss_LA) + self.cycle_weight * G_recon_loss_A + self.identity_weight * G_identity_loss_A + self.cam_weight * G_cam_loss_A
             G_loss_B = self.adv_weight * (
-                        G_ad_loss_GB + G_ad_cam_loss_GB + G_ad_loss_LB + G_ad_cam_loss_LB) + self.cycle_weight * G_recon_loss_B + self.identity_weight * G_identity_loss_B + self.cam_weight * G_cam_loss_B
+                    G_ad_loss_GB + G_ad_cam_loss_GB + G_ad_loss_LB + G_ad_cam_loss_LB) + self.cycle_weight * G_recon_loss_B + self.identity_weight * G_identity_loss_B + self.cam_weight * G_cam_loss_B
 
             Generator_loss = G_loss_A + G_loss_B
             Generator_loss.backward()
@@ -303,7 +306,7 @@ class UGATIT(object):
             self.genB2A.apply(self.Rho_clipper)
 
             print("[%5d/%5d] time: %4.4f d_loss: %.8f, g_loss: %.8f" % (
-            step, self.iteration, time.time() - start_time, Discriminator_loss, Generator_loss))
+                step, self.iteration, time.time() - start_time, Discriminator_loss, Generator_loss))
             if step % self.print_freq == 0:
                 train_sample_num = 5
                 test_sample_num = 5
@@ -396,7 +399,6 @@ class UGATIT(object):
                 cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'A2B_%07d.png' % step), A2B * 255.0)
                 cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.png' % step), B2A * 255.0)
                 self.genA2B.train(), self.genB2A.train(), self.disGA.train(), self.disGB.train(), self.disLA.train(), self.disLB.train()
-
 
             if step % self.opt.display_freq == 0:
                 # self.compute_visuals() # in pytorch_cyclegan,only used in colorization_model
