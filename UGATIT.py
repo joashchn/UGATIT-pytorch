@@ -382,6 +382,8 @@ class UGATIT(object):
                 cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.png' % step), B2A * 255.0)
                 self.genA2B.train(), self.genB2A.train(), self.disGA.train(), self.disGB.train(), self.disLA.train(), self.disLB.train()
 
+
+            if step % self.opt.display_freq == 0:
                 # self.compute_visuals() # in pytorch_cyclegan,only used in colorization_model
                 visualizer.display_current_results(self.get_current_visuals(), step, True)
 
